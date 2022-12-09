@@ -6,12 +6,11 @@ println("Loaded packages at t="*string(time()-tstart)*"s\n")
 println("Number of threads: "*string(Threads.nthreads()))
 
 # Set up OM session(s) and load model
-cd("ThermodynamicDesign/")
+cd(@__DIR__)
 sessions = []
 for thread in 1:Threads.nthreads()
-# for thread in 1:1
     push!(sessions, OMJulia.OMCSession())
-    sessions[thread].ModelicaSystem("package.mo","Tests.RegenerationCycle")
+    sessions[thread].ModelicaSystem("ThermodynamicDesign/package.mo","ThermodynamicDesign.Tests.RegenerationCycle")
 end
 
 println("Loaded Modelica model at t="*string(time()-tstart)*"s\n")
@@ -33,9 +32,9 @@ function neg_efficiency(x, sessions)
     for i in 1:5
         try     
             if x[2] <= x[1]          # Main pressure > Extraction pressure 
-                feasibility = 0.0 # Assume solution is feasible
                 model.setParameters(["main_steam_state.p_set=$(x[1])", "reheat_steam_state.p_set=$(x[2])", "splitter.split_fraction=$(1-x[3])"]) # Set design parameters
                 model.simulate() 
+                feasibility = 0.0 # Assume solution is feasible
                 eff = model.getSolutions("eta_energ")[1][1]
                 if model.getSolutions("pump.X_in")[1][1] > 0.0          # Pump inlet fluid must be fully liquid
                     feasibility = 1e4 * model.getSolutions("pump.X_in")[1][1] + 1
