@@ -1,0 +1,1 @@
+assert            | debug   | simulation_input_xml.c: Error: can not read file ThermodynamicDesign.Tests.RegenerationCycle_init.xml as setup file to the generated simulation code.
